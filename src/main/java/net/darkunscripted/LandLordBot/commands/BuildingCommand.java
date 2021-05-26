@@ -216,9 +216,23 @@ public class BuildingCommand extends Command {
                     }
                 }else{
                     EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Profile**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), null);
-                    embed.addField("**You do not have a profile " + e.getMessage().getAuthor().getName() + "!**", "create one with: `-profile create`", false);
+                    embed.addField("**You do not have a profile " + e.getMessage().getAuthor().getName() + "!**", "create one with: `" + Bot.prefix + "profile create`", false);
                     e.getMessage().getChannel().sendMessage(embed.build()).queue();
                 }
+            }else if(args[0].equalsIgnoreCase("sell")){
+                if(args.length == 1){
+
+                }else{
+
+                }
+            }else{
+                EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Building Help**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**No Command found! Try This:**");
+                embed.addField("**Help Command**", "*" + Bot.prefix + "building help*", false);
+                embed.addField("**Show Command**", "*" + Bot.prefix + "building show <name>*", false);
+                embed.addField("**Create Command**", "*" + Bot.prefix + "building create*", false);
+                embed.addField("**Buy Command**", "*" + Bot.prefix + "building buy*", false);
+                embed.addField("**Sell Command**", "*" + Bot.prefix + "building sell <name>", false);
+                e.getMessage().getChannel().sendMessage(embed.build()).queue();
             }
         }
     }

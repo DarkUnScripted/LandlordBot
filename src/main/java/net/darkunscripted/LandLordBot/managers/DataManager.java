@@ -1,44 +1,50 @@
 package net.darkunscripted.LandLordBot.managers;
 
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationConfig;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import net.darkunscripted.LandLordBot.Bot;
 import net.darkunscripted.LandLordBot.domain.Building;
-import net.darkunscripted.LandLordBot.domain.Settings;
 import net.darkunscripted.LandLordBot.domain.UserProfile;
-import okhttp3.OkHttpClient.Builder;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 public class DataManager {
 
     public static void loadSettings(){
-        try {
-            ClassLoader cL = Thread.currentThread().getContextClassLoader();
-            File file = new File("./Settings/settings.yml");
-            ObjectMapper objM = new ObjectMapper(new YAMLFactory());
-            Settings settings = objM.readValue(file, Settings.class);
-            Bot.prefix = settings.getPrefix();
-            for (String admin : settings.getAdmins()) {
-                Bot.admins.add(admin);
-            }
-            Bot.fileDirectory = settings.getFileDirectory();
-            System.out.println("Prefix settings " + settings.getPrefix());
+        try (FileReader reader = new FileReader("D:/Discord Bot/DarkDevelopment/LandlordBot/src/main/resources/Settings/config.json")){
+            JSONParser jsonParser = new JSONParser();
+            Object obj = jsonParser.parse(reader);
+            JSONObject settingsObj = (JSONObject) obj;
+            JSONArray adminArray = (JSONArray) settingsObj.get("admins");
+            adminArray.forEach(admin -> {
+                Bot.admins.add((String) admin);
+                System.out.println((String) admin);
+            });
+            Bot.prefix = settingsObj.get("prefix").toString();
+            Bot.token = settingsObj.get("token").toString();
+            System.out.println(Bot.prefix);
         }catch (IOException e){
-            System.out.println("Could not find file!");
+            e.printStackTrace();
+        }catch (ParseException e){
+            e.printStackTrace();
         }
     }
 
     public static void loadBuildings(){
         try{
-            File dir = new File("./Buildings/");
+            File dir = new File("D:/Discord Bot/DarkDevelopment/LandlordBot/src/main/resources/Buildings/");
             File[] directoryListing = dir.listFiles();
             System.out.println(directoryListing.length);
             if (directoryListing != null) {
@@ -57,9 +63,12 @@ public class DataManager {
 
     public static void saveBuildings(){
         try {
-            ObjectMapper om = new ObjectMapper(new YAMLFactory());
+            ObjectMapper om = new ObjectMapper(new JsonFactory());
+            om.enable(SerializationFeature.INDENT_OUTPUT);
             for (Building building : BuildingManager.getInstance().getBuildings()) {
-                om.writeValue(new File("./Buildings/" + building.getName() + ".yml"), building);
+                JSONObject job = building.toJson();
+                System.out.println(job);
+                om.writeValue(new File("D:/Discord Bot/DarkDevelopment/LandlordBot/src/main/resources/Buildings/" + building.getName() + ".json"), job);
             }
         }catch (IOException e){
             System.out.println("Error with saving to file!" + e);
@@ -69,8 +78,9 @@ public class DataManager {
 
     public static void saveBuilding(Building building){
         try {
-            ObjectMapper om = new ObjectMapper(new YAMLFactory());
-            om.writeValue(new File( "./Buildings/" + building.getName() + ".yml"), building);
+            ObjectMapper om = new ObjectMapper(new JsonFactory());
+            om.enable(SerializationFeature.INDENT_OUTPUT);
+            om.writeValue(new File( "D:/Discord Bot/DarkDevelopment/LandlordBot/src/main/resources/Buildings/" + building.getName() + ".json"), building.toJson());
         }catch (IOException e){
             System.out.println("Error with saving to file!" + e);
             e.printStackTrace();
@@ -79,7 +89,7 @@ public class DataManager {
 
     public static void loadProfiles(){
         try{
-            File dir = new File("./Profiles/");
+            File dir = new File("D:/Discord Bot/DarkDevelopment/LandlordBot/src/main/resources/Profiles/");
             File[] directoryListing = dir.listFiles();
             if (directoryListing != null) {
                 for (File child : directoryListing) {
@@ -105,21 +115,25 @@ public class DataManager {
 
     public static void saveProfiles(){
         try {
-            ObjectMapper om = new ObjectMapper(new YAMLFactory());
+            ObjectMapper om = new ObjectMapper(new JsonFactory());
+            om.enable(SerializationFeature.INDENT_OUTPUT);
             for (UserProfile profile : ProfileManager.getInstance().getProfiles()) {
-                om.writeValue(new File("./Profiles/" + profile.getId() + ".yml"), profile);
+                om.writeValue(new File("D:/Discord Bot/DarkDevelopment/LandlordBot/src/main/resources/Profiles/" + profile.getId() + ".json"), profile.toJson());
             }
-        }catch (IOException e){
+        }catch (IOException | ParseException e){
             System.out.println("Error with saving to file!");
+            e.printStackTrace();
         }
     }
 
     public static void saveProfile(UserProfile profile) {
         try {
-            ObjectMapper om = new ObjectMapper(new YAMLFactory());
-            om.writeValue(new File("./Profiles/" + profile.getId() + ".yml"), profile);
-        } catch (IOException e) {
+            ObjectMapper om = new ObjectMapper(new JsonFactory());
+            om.enable(SerializationFeature.INDENT_OUTPUT);
+            om.writeValue(new File("D:/Discord Bot/DarkDevelopment/LandlordBot/src/main/resources/Profiles/" + profile.getId() + ".json"), profile.toJson());
+        } catch (IOException | ParseException e) {
             System.out.println("Error with saving to file!");
+            e.printStackTrace();
         }
     }
 }

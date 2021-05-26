@@ -64,7 +64,7 @@ public class AccountCommand extends Command {
                     e.getMessage().getChannel().sendMessage(embed.build()).queue();
                 }else{
                     EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Profile**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), null);
-                    embed.addField("**You do not have a profile " + e.getMessage().getAuthor().getName() + "!**", "create one with: `-profile create`", false);
+                    embed.addField("**You do not have a profile " + e.getMessage().getAuthor().getName() + "!**", "create one with: `" + Bot.prefix + "profile create`", false);
                     e.getMessage().getChannel().sendMessage(embed.build()).queue();
                 }
             }else if(args.length == 1 && args[0].equalsIgnoreCase("create")){
@@ -72,11 +72,11 @@ public class AccountCommand extends Command {
                 if(profile == null){
                     ProfileManager.getInstance().createProfile(e.getMessage().getAuthor().getId());
                     EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Profile**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), null);
-                    embed.addField("**Succesfully made a profile " + e.getMessage().getAuthor().getName() + "!**", "show it using `-profile show`", false);
+                    embed.addField("**Succesfully made a profile " + e.getMessage().getAuthor().getName() + "!**", "show it using `" + Bot.prefix + "profile show`", false);
                     e.getMessage().getChannel().sendMessage(embed.build()).queue();
                 }else{
                     EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Profile**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), null);
-                    embed.addField("**You already have a profile " + e.getMessage().getAuthor().getName() + "!**", "show it using `-profile show`", false);
+                    embed.addField("**You already have a profile " + e.getMessage().getAuthor().getName() + "!**", "show it using `" + Bot.prefix + "profile show`", false);
                     e.getMessage().getChannel().sendMessage(embed.build()).queue();
                 }
             }else if(args.length > 1 && args[0].equalsIgnoreCase("show")){

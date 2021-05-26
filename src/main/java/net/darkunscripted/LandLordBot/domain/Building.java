@@ -1,5 +1,7 @@
 package net.darkunscripted.LandLordBot.domain;
 
+import org.json.simple.JSONObject;
+
 import java.util.UUID;
 
 public class Building {
@@ -68,5 +70,15 @@ public class Building {
 
     public void setPurchasedShares(int purchasedShares) {
         this.purchasedShares = purchasedShares;
+    }
+
+    public JSONObject toJson(){
+        JSONObject job = new JSONObject();
+        job.put("id", this.id.toString());
+        job.put("name", this.name);
+        job.put("shares", this.shares);
+        job.put("worth", this.worth);
+        job.put("purchasedShares", this.purchasedShares);
+        return job;
     }
 }

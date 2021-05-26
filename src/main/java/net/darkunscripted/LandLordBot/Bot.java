@@ -20,7 +20,7 @@ public class Bot {
 
     public static String prefix = "!";
     public static List<String> admins = new ArrayList<String>();
-    public static String fileDirectory;
+    public static String token;
 
     public static void main(String[] args) throws LoginException {
 
@@ -30,7 +30,7 @@ public class Bot {
         DataManager.loadProfiles();
         DataManager.saveProfiles();
 
-        JDA jda = JDABuilder.createDefault("<token>").build();
+        JDA jda = JDABuilder.createDefault(token).build();
 
         EventWaiter waiter = new EventWaiter();
 

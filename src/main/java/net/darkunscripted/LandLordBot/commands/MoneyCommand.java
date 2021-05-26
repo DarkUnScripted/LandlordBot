@@ -83,6 +83,46 @@ public class MoneyCommand extends Command {
                     EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Money Give**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "Only a admin can give money, <@" + e.getMessage().getAuthor().getId() + ">!");
                     e.getMessage().getChannel().sendMessage(embed.build()).queue();
                 }
+            }else if(args.length == 2 && args[0].equalsIgnoreCase("set")){
+                if(Bot.admins.contains(e.getMessage().getAuthor().getId())){
+                    if(!(e.getMessage().getMentionedMembers().size() == 0)){
+                        Member member = e.getMessage().getMentionedMembers().get(0);
+                        EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Money Set**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "<@" + e.getMessage().getAuthor().getId() + ">\nTo what do you want to set the balance, <@" + member.getId() + ">?");
+                        e.getMessage().getChannel().sendMessage(embed.build()).queue();
+                        waiter.waitForEvent(GuildMessageReceivedEvent.class, amountSetEvent -> amountSetEvent.getMessage().getAuthor().equals(e.getMessage().getAuthor()) && amountSetEvent.getChannel().equals(e.getChannel()), (amountSetEvent) -> {
+                            try {
+                                long amount = Long.parseLong(amountSetEvent.getMessage().getContentRaw());
+                                EmbedBuilder confirmSetEmbed = EmbedManager.getInstance().createEmbed("**Money Set**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "<@" + e.getMessage().getAuthor().getId() + ">\nAre you sure you wanna set <@" + member.getId() + ">'s money to: " + amount + "?");
+                                e.getMessage().getChannel().sendMessage(confirmSetEmbed.build()).queue((message) -> {
+                                    message.addReaction("✅").queue();
+                                    waiter.waitForEvent(GuildMessageReactionAddEvent.class, confirmSetEvent -> confirmSetEvent.getMessageId().equals(message.getId()) && confirmSetEvent.getMember().getId().equals(e.getMessage().getAuthor().getId()) && confirmSetEvent.getChannel().equals(message.getChannel()), confirmSetEvent -> {
+                                        ProfileManager.getInstance().getProfile(member.getId()).setMoney(amount);
+                                        DataManager.saveProfile(ProfileManager.getInstance().getProfile(member.getId()));
+                                        EmbedBuilder confirmedSetEmbed = EmbedManager.getInstance().createEmbed("**Money Set**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "<@" + e.getMessage().getAuthor().getId() + ">\nSetted <@" + member.getId() + ">'s money to: " + amount + "!");
+                                        e.getMessage().getChannel().sendMessage(confirmedSetEmbed.build()).queue();
+                                    }, 15, TimeUnit.SECONDS, () -> {
+                                        EmbedBuilder cancelledEmbed = EmbedManager.getInstance().createEmbed("**Money Set**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**Transaction has been cancelled, <@" + e.getMessage().getAuthor().getId() + ">!**");
+                                        e.getMessage().getChannel().sendMessage(cancelledEmbed.build()).queue();
+                                    });
+                                });
+                            }catch (Exception exception){
+                                amountSetEvent.getMessage().reply("Something went wrong try again!").queue();
+                                exception.printStackTrace();
+                            }
+                        });
+                    }
+                }else{
+                    EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Money Set**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "Only a admin can set money, <@" + e.getMessage().getAuthor().getId() + ">!");
+                    e.getMessage().getChannel().sendMessage(embed.build()).queue();
+                }
+            }else{
+                EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Money Help**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**No command found! try these!**");
+                embed.addField("**Help Command**", "*" + Bot.prefix + "money help*", false);
+                embed.addField("**Show Command**", "*" + Bot.prefix + "money*", false);
+                embed.addField("**Give Command**", "*" + Bot.prefix + "money give <tag member>*", false);
+                embed.addField("**Set Command**", "*" + Bot.prefix + "money set <tag member>*", false);
+                embed.addField("**Remove Command**", "*" + Bot.prefix + "money remove <tag member>*", false);
+                e.getMessage().getChannel().sendMessage(embed.build()).queue();
             }
         }
     }

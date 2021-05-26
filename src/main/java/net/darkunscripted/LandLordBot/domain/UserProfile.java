@@ -1,5 +1,10 @@
 package net.darkunscripted.LandLordBot.domain;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -74,5 +79,16 @@ public class UserProfile {
 
     public void removeShare(Building building){
         shares.remove(building);
+    }
+
+    public JSONObject toJson() throws ParseException {
+        JSONObject job = new JSONObject();
+        JSONObject sharesObj = new JSONObject();
+        job.put("id", this.id.toString());
+        job.put("userID", this.userID.toCharArray());
+        job.put("money", this.money);
+        job.put("worth", this.worth);
+        job.put("shares", (JSONObject) new JSONParser().parse(JSONValue.toJSONString(this.shares)));
+        return job;
     }
 }
