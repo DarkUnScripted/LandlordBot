@@ -87,6 +87,13 @@ public class DataManager {
         }
     }
 
+    public static void deleteBuilding(Building building){
+        File file = new File("D:/Discord Bot/DarkDevelopment/LandlordBot/src/main/resources/Buildings/" + building.getName() + ".json");
+        if(file.exists()){
+            file.delete();
+        }
+    }
+
     public static void loadProfiles(){
         try{
             File dir = new File("D:/Discord Bot/DarkDevelopment/LandlordBot/src/main/resources/Profiles/");

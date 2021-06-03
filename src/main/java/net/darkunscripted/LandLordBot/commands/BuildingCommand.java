@@ -53,26 +53,36 @@ public class BuildingCommand extends Command {
                 embed.addField("**Buy Command**", "*" + Bot.prefix + "building buy*", false);
                 e.getMessage().getChannel().sendMessage(embed.build()).queue();
             } else if (args.length == 1 && args[0].equalsIgnoreCase("show")) {
-                for (Building building : BuildingManager.getInstance().getBuildings()) {
-                    EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**" + building.getName() + "**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**Building info:**");
-                    embed.addField("id", "" + building.getId(), false);
-                    embed.addField("shares", "" + building.getShares(), false);
-                    embed.addField("worth", "" + building.getWorth(), false);
-                    e.getChannel().sendMessage(embed.build()).queue();
-                }
-            } else if (args[0].equalsIgnoreCase("show")) {
-                String name = "";
-                for (int i = 1; i < args.length; i++) {
-                    name = name + args[i] + " ";
-                }
-                for (Building building : BuildingManager.getInstance().getBuildings()) {
-                    if (building.getName().equalsIgnoreCase(name.strip())) {
+                if(BuildingManager.getInstance().getBuildings().size() > 0) {
+                    for (Building building : BuildingManager.getInstance().getBuildings()) {
                         EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**" + building.getName() + "**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**Building info:**");
                         embed.addField("id", "" + building.getId(), false);
                         embed.addField("shares", "" + building.getShares(), false);
                         embed.addField("worth", "" + building.getWorth(), false);
                         e.getChannel().sendMessage(embed.build()).queue();
                     }
+                }else{
+                    EmbedBuilder cancelEmbed = EmbedManager.getInstance().createEmbed("**Building Show**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "There are no buildings yet!");
+                    e.getChannel().sendMessage(cancelEmbed.build()).queue();
+                }
+            } else if (args[0].equalsIgnoreCase("show")) {
+                if(BuildingManager.getInstance().getBuildings().size() > 0) {
+                    String name = "";
+                    for (int i = 1; i < args.length; i++) {
+                        name = name + args[i] + " ";
+                    }
+                    for (Building building : BuildingManager.getInstance().getBuildings()) {
+                        if (building.getName().equalsIgnoreCase(name.strip())) {
+                            EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**" + building.getName() + "**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**Building info:**");
+                            embed.addField("id", "" + building.getId(), false);
+                            embed.addField("shares", "" + building.getShares(), false);
+                            embed.addField("worth", "" + building.getWorth(), false);
+                            e.getChannel().sendMessage(embed.build()).queue();
+                        }
+                    }
+                }else{
+                    EmbedBuilder cancelEmbed = EmbedManager.getInstance().createEmbed("**Building Show**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "There are no buildings yet!");
+                    e.getChannel().sendMessage(cancelEmbed.build()).queue();
                 }
             }else if(args.length == 1 && args[0].equalsIgnoreCase("create")){
 
@@ -146,7 +156,7 @@ public class BuildingCommand extends Command {
                             int availableShares = building.getShares() - building.getPurchasedShares();
                             int affordable = (int) Math.floor(profile.getMoney() / singleShare);
                             if(affordable == 0){
-                                EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Building Buy**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**You dont have enough money <@" + e.getMessage().getAuthor().getId() + ">!**");
+                                EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Building Buy**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**No more shares available, <@" + e.getMessage().getAuthor().getId() + ">!**");
                                 e.getMessage().getChannel().sendMessage(embed.build()).queue();
                             }else {
                                 EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**" + building.getName() + "**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**Building Cost:**");
@@ -225,6 +235,41 @@ public class BuildingCommand extends Command {
                 }else{
 
                 }
+            }else if(args[0].equalsIgnoreCase("delete")){
+                if(Bot.admins.contains(e.getAuthor().getId())){
+                    if(!(args.length < 2)) {
+                        String name = "";
+                        for (int i = 1; i < args.length; i++) {
+                            name = name + args[i] + " ";
+                        }
+                        final String buildingName = name.strip();
+                        System.out.println(buildingName);
+                        final Building building = BuildingManager.getInstance().getBuildings().stream().filter(b -> b.getName().equalsIgnoreCase(buildingName)).findFirst().orElse(null);
+                        if (building != null) {
+                            ProfileManager.getInstance().getProfiles().forEach(p -> {
+                                if (p.getShares().containsKey(building.getId())) {
+                                    p.getShares().remove(building.getId());
+                                }
+                            });
+                            BuildingManager.getInstance().removeBuilding(building.getId());
+                            DataManager.deleteBuilding(building);
+                            DataManager.saveProfiles();
+                            EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Building Delete**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "Building Succesfully deleted, <@" + e.getMessage().getAuthor().getId() + ">");
+                            e.getMessage().getChannel().sendMessage(embed.build()).queue();
+                        } else {
+                            EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Building Delete**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "<@" + e.getMessage().getAuthor().getId() + ">, no building found with that name!");
+                            e.getMessage().getChannel().sendMessage(embed.build()).queue();
+                        }
+                    }else{
+                        EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Building Delete**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "<@" + e.getMessage().getAuthor().getId() + ">, Wrong use of command! `" + Bot.prefix + "building delete <name>`");
+                        e.getMessage().getChannel().sendMessage(embed.build()).queue();
+                    }
+                }else{
+                    EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Building Delete**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "<@" + e.getMessage().getAuthor().getId() + "> you do not have permission for this!");
+                    e.getMessage().getChannel().sendMessage(embed.build()).queue();
+                }
+            }else if(args[0].equalsIgnoreCase("remove")){
+
             }else{
                 EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**Building Help**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**No Command found! Try This:**");
                 embed.addField("**Help Command**", "*" + Bot.prefix + "building help*", false);
