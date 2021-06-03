@@ -52,32 +52,29 @@ public class BuildingCommand extends Command {
                 embed.addField("**Create Command**", "*" + Bot.prefix + "building create*", false);
                 embed.addField("**Buy Command**", "*" + Bot.prefix + "building buy*", false);
                 e.getMessage().getChannel().sendMessage(embed.build()).queue();
-            } else if (args.length == 1 && args[0].equalsIgnoreCase("show")) {
-                if(BuildingManager.getInstance().getBuildings().size() > 0) {
-                    for (Building building : BuildingManager.getInstance().getBuildings()) {
-                        EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**" + building.getName() + "**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**Building info:**");
-                        embed.addField("id", "" + building.getId(), false);
-                        embed.addField("shares", "" + building.getShares(), false);
-                        embed.addField("worth", "" + building.getWorth(), false);
-                        e.getChannel().sendMessage(embed.build()).queue();
-                    }
-                }else{
-                    EmbedBuilder cancelEmbed = EmbedManager.getInstance().createEmbed("**Building Show**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "There are no buildings yet!");
-                    e.getChannel().sendMessage(cancelEmbed.build()).queue();
-                }
             } else if (args[0].equalsIgnoreCase("show")) {
                 if(BuildingManager.getInstance().getBuildings().size() > 0) {
-                    String name = "";
-                    for (int i = 1; i < args.length; i++) {
-                        name = name + args[i] + " ";
-                    }
-                    for (Building building : BuildingManager.getInstance().getBuildings()) {
-                        if (building.getName().equalsIgnoreCase(name.strip())) {
+                    if (args.length < 2) {
+                        for (Building building : BuildingManager.getInstance().getBuildings()) {
                             EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**" + building.getName() + "**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**Building info:**");
                             embed.addField("id", "" + building.getId(), false);
                             embed.addField("shares", "" + building.getShares(), false);
                             embed.addField("worth", "" + building.getWorth(), false);
                             e.getChannel().sendMessage(embed.build()).queue();
+                        }
+                    } else {
+                        String name = "";
+                        for (int i = 1; i < args.length; i++) {
+                            name = name + args[i] + " ";
+                        }
+                        for (Building building : BuildingManager.getInstance().getBuildings()) {
+                            if (building.getName().equalsIgnoreCase(name.strip())) {
+                                EmbedBuilder embed = EmbedManager.getInstance().createEmbed("**" + building.getName() + "**", Color.BLUE, e.getMessage().getGuild().getName() + " ♢ " + e.getJDA().getSelfUser().getName(), "**Building info:**");
+                                embed.addField("id", "" + building.getId(), false);
+                                embed.addField("shares", "" + building.getShares(), false);
+                                embed.addField("worth", "" + building.getWorth(), false);
+                                e.getChannel().sendMessage(embed.build()).queue();
+                            }
                         }
                     }
                 }else{
